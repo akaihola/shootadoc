@@ -51,15 +51,15 @@ class SlicableImage(Image):
         return image
 
 
-def get_brightest_neighbor(
+def get_extreme_neighbor(
     image: SlicableImage, shift: int, aggregate=lighter
 ) -> Image:
     orig = image[:-shift, :-shift]
-    down = image[:-shift, shift:]
-    right = image[shift:, :-shift]
+    up = image[:-shift, shift:]
+    left = image[shift:, :-shift]
     diag = image[shift:, shift:]
     return SlicableImage.from_image(
-        aggregate(aggregate(orig, down), aggregate(right, diag))
+        aggregate(aggregate(orig, up), aggregate(left, diag))
     )
 
 
@@ -85,7 +85,7 @@ def get_extreme(
     assert steps > 0
     for step in range(steps):
         shift = 2 ** step
-        image = get_brightest_neighbor(image, shift, mode)
+        image = get_extreme_neighbor(image, shift, mode)
     out.paste(image, (shift, shift))
     fill(out, direction=-1, y=shift)
     fill(out, direction=1, y=out.height - shift)
